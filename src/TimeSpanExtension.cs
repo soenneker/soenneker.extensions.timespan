@@ -51,11 +51,8 @@ public static class TimeSpanExtension
     [Pure]
     public static bool IsBetween(this System.TimeSpan timeSpan, System.TimeSpan start, System.TimeSpan end)
     {
-        if (start == end) 
-            return true;
-
         // Normal case, e.g., 8am-2pm
-        if (start < end) 
+        if (start < end || start == end)
             return start <= timeSpan && timeSpan < end;
 
         // Reverse case, e.g. 10pm-2am
