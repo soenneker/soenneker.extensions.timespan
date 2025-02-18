@@ -108,7 +108,43 @@ public static class TimeSpanExtension
         long totalTicksInADay = System.TimeSpan.FromHours(24).Ticks;
         newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
 
-        var rtnTimeSpan = new System.TimeSpan(newTicks);
-        return rtnTimeSpan;
+        return new System.TimeSpan(newTicks);
+    }
+
+    [Pure]
+    public static string ToDisplayFormat(this System.TimeSpan timeSpan, bool compact = true)
+    {
+        if (timeSpan.TotalMilliseconds < 1)
+            return "0s";
+
+        if (timeSpan.TotalSeconds < 1)
+            return compact ? $"{timeSpan.TotalMilliseconds}ms" : $"{timeSpan.TotalMilliseconds} milliseconds";
+
+        if (timeSpan.TotalMinutes < 1)
+            return compact
+                ? $"{timeSpan.Seconds}s"
+                : $"{timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
+
+        if (timeSpan.TotalHours < 1)
+            return compact
+                ? $"{timeSpan.Minutes}m {timeSpan.Seconds}s"
+                : $"{timeSpan.Minutes} {(timeSpan.Minutes == 1 ? "minute" : "minutes")}, {timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
+
+        if (timeSpan.TotalDays < 1)
+            return compact
+                ? $"{timeSpan.Hours}h {timeSpan.Minutes}m"
+                : $"{timeSpan.Hours} {(timeSpan.Hours == 1 ? "hour" : "hours")}, {timeSpan.Minutes} {(timeSpan.Minutes == 1 ? "minute" : "minutes")}";
+
+        if (timeSpan.TotalDays < 365)
+            return compact
+                ? $"{timeSpan.Days}d {timeSpan.Hours}h"
+                : $"{timeSpan.Days} {(timeSpan.Days == 1 ? "day" : "days")}, {timeSpan.Hours} {(timeSpan.Hours == 1 ? "hour" : "hours")}";
+
+        int years = timeSpan.Days / 365;
+        int days = timeSpan.Days % 365;
+
+        return compact
+            ? $"{years}y {days}d"
+            : $"{years} {(years == 1 ? "year" : "years")}, {days} {(days == 1 ? "day" : "days")}";
     }
 }
