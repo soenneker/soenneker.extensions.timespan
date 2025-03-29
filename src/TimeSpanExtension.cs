@@ -147,4 +147,15 @@ public static class TimeSpanExtension
             ? $"{years}y {days}d"
             : $"{years} {(years == 1 ? "year" : "years")}, {days} {(days == 1 ? "day" : "days")}";
     }
+
+    /// <summary>
+    /// Converts a time span into a string formatted as hours, minutes, and seconds.
+    /// </summary>
+    /// <param name="timeSpan">Represents a duration of time that will be formatted into a string.</param>
+    /// <returns>A string representation of the time span in the format 'hh:mm:ss'.</returns>
+    [Pure]
+    public static string ToHourMinuteSecondString(this System.TimeSpan timeSpan)
+    {
+        return timeSpan.ToString(@"hh\:mm\:ss");
+    }
 }
