@@ -1,4 +1,4 @@
-# Contributing to Soenneker.Extensions.TimeSpan
+﻿# Contributing to Soenneker.Extensions.TimeSpan
 
 We're excited that you're interested in contributing!
 
