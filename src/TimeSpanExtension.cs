@@ -1,5 +1,6 @@
 using System.Diagnostics.Contracts;
 using Soenneker.Extensions.DateTime;
+using Soenneker.Extensions.DateTimeOffsets;
 
 namespace Soenneker.Extensions.TimeSpan;
 
@@ -28,7 +29,7 @@ public static class TimeSpanExtension
         // Format hours in 12-hour format, adjusting 0 to 12 for readability.
         int displayHours = hours % 12;
 
-        if (displayHours == 0) 
+        if (displayHours == 0)
             displayHours = 12; // Adjust for 12 AM/PM readability
 
         // Determine AM or PM based on the original hour value.
@@ -36,6 +37,47 @@ public static class TimeSpanExtension
 
         // Return the formatted string.
         return $"{displayHours}:{minutes:00} {amPm}";
+    }
+
+    /// <summary>
+    /// Adjusts a <see cref="System.TimeSpan"/> from a specific time zone to UTC by subtracting the time zone's offset from UTC.
+    /// DateTimeOffset overload.
+    /// </summary>
+    [Pure]
+    public static System.TimeSpan ToUtcFromTz(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
+    {
+        // utcNow is already UTC (caller should pass UtcNow). We compute the target TZ offset for that instant.
+        double offset = utcNow.ToTzOffsetHours(timeZoneInfo);
+
+        long newTicks = timeSpan.Ticks - System.TimeSpan.FromHours(offset)
+                                               .Ticks;
+
+        // Ensure the TimeSpan stays within a 24-hour period
+        long totalTicksInADay = System.TimeSpan.FromHours(24)
+                                      .Ticks;
+        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
+
+        return new System.TimeSpan(newTicks);
+    }
+
+    /// <summary>
+    /// Converts a UTC <see cref="System.TimeSpan"/> to a specific time zone by adding the time zone's offset from UTC.
+    /// DateTimeOffset overload.
+    /// </summary>
+    [Pure]
+    public static System.TimeSpan ToTzFromUtc(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
+    {
+        double offset = utcNow.ToTzOffsetHours(timeZoneInfo);
+
+        long newTicks = timeSpan.Ticks + System.TimeSpan.FromHours(offset)
+                                               .Ticks;
+
+        // Ensure the TimeSpan stays within a 24-hour period
+        long totalTicksInADay = System.TimeSpan.FromHours(24)
+                                      .Ticks;
+        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
+
+        return new System.TimeSpan(newTicks);
     }
 
     /// <summary>
@@ -75,10 +117,12 @@ public static class TimeSpanExtension
     {
         int offset = utcNow.ToTzOffsetHours(timeZoneInfo);
 
-        long newTicks = timeSpan.Ticks - System.TimeSpan.FromHours(offset).Ticks;
+        long newTicks = timeSpan.Ticks - System.TimeSpan.FromHours(offset)
+                                               .Ticks;
 
         // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24).Ticks;
+        long totalTicksInADay = System.TimeSpan.FromHours(24)
+                                      .Ticks;
         newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
 
         var rtnTimeSpan = new System.TimeSpan(newTicks);
@@ -103,13 +147,16 @@ public static class TimeSpanExtension
     {
         int offset = utcNow.ToTzOffsetHours(timeZoneInfo);
 
-        long newTicks = timeSpan.Ticks + System.TimeSpan.FromHours(offset).Ticks;
+        long newTicks = timeSpan.Ticks + System.TimeSpan.FromHours(offset)
+                                               .Ticks;
         // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24).Ticks;
+        long totalTicksInADay = System.TimeSpan.FromHours(24)
+                                      .Ticks;
         newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
 
         return new System.TimeSpan(newTicks);
     }
+
 
     [Pure]
     public static string ToDisplayFormat(this System.TimeSpan timeSpan, bool compact = true)
@@ -121,9 +168,7 @@ public static class TimeSpanExtension
             return compact ? $"{timeSpan.TotalMilliseconds}ms" : $"{timeSpan.TotalMilliseconds} milliseconds";
 
         if (timeSpan.TotalMinutes < 1)
-            return compact
-                ? $"{timeSpan.Seconds}s"
-                : $"{timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
+            return compact ? $"{timeSpan.Seconds}s" : $"{timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
 
         if (timeSpan.TotalHours < 1)
             return compact
@@ -143,9 +188,7 @@ public static class TimeSpanExtension
         int years = timeSpan.Days / 365;
         int days = timeSpan.Days % 365;
 
-        return compact
-            ? $"{years}y {days}d"
-            : $"{years} {(years == 1 ? "year" : "years")}, {days} {(days == 1 ? "day" : "days")}";
+        return compact ? $"{years}y {days}d" : $"{years} {(years == 1 ? "year" : "years")}, {days} {(days == 1 ? "day" : "days")}";
     }
 
     /// <summary>
