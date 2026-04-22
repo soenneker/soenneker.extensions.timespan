@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using Soenneker.Tests.Unit;
 using Soenneker.Utils.TimeZones;
-using Xunit;
 
 namespace Soenneker.Extensions.TimeSpan.Tests;
 
@@ -131,7 +130,7 @@ public class TimeSpanExtensionTests : UnitTest
         result.Days.Should().Be(0);
     }
 
-    [Fact]
+    [Test]
     public void ToShortTime_ShouldGiveExpectedResult()
     {
         var timeSpan = new System.TimeSpan(1, 1, 1, 1);
