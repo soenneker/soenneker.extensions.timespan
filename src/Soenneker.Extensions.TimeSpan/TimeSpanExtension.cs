@@ -158,6 +158,12 @@ public static class TimeSpanExtension
     }
 
 
+    /// <summary>
+    /// Executes the to display format operation.
+    /// </summary>
+    /// <param name="timeSpan">The time span.</param>
+    /// <param name="compact">The compact.</param>
+    /// <returns>The result of the operation.</returns>
     [Pure]
     public static string ToDisplayFormat(this System.TimeSpan timeSpan, bool compact = true)
     {
