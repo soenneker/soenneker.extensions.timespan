@@ -43,6 +43,7 @@ public static class TimeSpanExtension
     /// Adjusts a <see cref="System.TimeSpan"/> from a specific time zone to UTC by subtracting the time zone's offset from UTC.
     /// DateTimeOffset overload.
     /// </summary>
+    /// <returns>Adjusts a <see cref="System.TimeSpan"/> from a specific time zone to UTC by subtracting the time zone's offset from UTC. DateTimeOffset overload.</returns>
     [Pure]
     public static System.TimeSpan ToUtcFromTz(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
     {
@@ -64,6 +65,7 @@ public static class TimeSpanExtension
     /// Converts a UTC <see cref="System.TimeSpan"/> to a specific time zone by adding the time zone's offset from UTC.
     /// DateTimeOffset overload.
     /// </summary>
+    /// <returns>Converts a UTC <see cref="System.TimeSpan"/> to a specific time zone by adding the time zone's offset from UTC. DateTimeOffset overload.</returns>
     [Pure]
     public static System.TimeSpan ToTzFromUtc(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
     {
@@ -159,11 +161,11 @@ public static class TimeSpanExtension
 
 
     /// <summary>
-    /// Executes the to display format operation.
+    /// Formats a duration using its two most significant units, in compact or human-readable form.
     /// </summary>
-    /// <param name="timeSpan">The time span.</param>
-    /// <param name="compact">The compact.</param>
-    /// <returns>The result of the operation.</returns>
+    /// <param name="timeSpan">The duration to format.</param>
+    /// <param name="compact">True for abbreviated units such as <c>2h 5m</c>; false for full unit names.</param>
+    /// <returns>The formatted duration.</returns>
     [Pure]
     public static string ToDisplayFormat(this System.TimeSpan timeSpan, bool compact = true)
     {
