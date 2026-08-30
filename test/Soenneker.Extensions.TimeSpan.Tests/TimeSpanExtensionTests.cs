@@ -137,4 +137,26 @@ public class TimeSpanExtensionTests : UnitTest
         string result = timeSpan.ToShortTime();
         result.Should().Be("1:01 AM");
     }
+
+    [Test]
+    public void ToTzFromUtc_PreservesFractionalHourOffset()
+    {
+        System.TimeZoneInfo timeZone = System.TimeZoneInfo.CreateCustomTimeZone("UTC+05:30", System.TimeSpan.FromMinutes(330), "UTC+05:30", "UTC+05:30");
+        var instant = new System.DateTime(2026, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+
+        System.TimeSpan result = System.TimeSpan.FromHours(20).ToTzFromUtc(instant, timeZone);
+
+        result.Should().Be(System.TimeSpan.FromHours(1.5));
+    }
+
+    [Test]
+    public void ToUtcFromTz_NormalizesValuesBelowNegativeOneDay()
+    {
+        System.TimeZoneInfo utc = System.TimeZoneInfo.Utc;
+        var instant = new System.DateTime(2026, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+
+        System.TimeSpan result = System.TimeSpan.FromHours(-50).ToUtcFromTz(instant, utc);
+
+        result.Should().Be(System.TimeSpan.FromHours(22));
+    }
 }

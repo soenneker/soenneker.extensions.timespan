@@ -1,6 +1,4 @@
 using System.Diagnostics.Contracts;
-using Soenneker.Extensions.DateTime;
-using Soenneker.Extensions.DateTimeOffsets;
 
 namespace Soenneker.Extensions.TimeSpan;
 
@@ -47,18 +45,8 @@ public static class TimeSpanExtension
     [Pure]
     public static System.TimeSpan ToUtcFromTz(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
     {
-        // utcNow is already UTC (caller should pass UtcNow). We compute the target TZ offset for that instant.
-        double offset = utcNow.ToTzOffsetHours(timeZoneInfo);
-
-        long newTicks = timeSpan.Ticks - System.TimeSpan.FromHours(offset)
-                                               .Ticks;
-
-        // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24)
-                                      .Ticks;
-        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
-
-        return new System.TimeSpan(newTicks);
+        System.TimeSpan offset = timeZoneInfo.GetUtcOffset(utcNow);
+        return AdjustClockTime(timeSpan, -offset.Ticks);
     }
 
     /// <summary>
@@ -69,17 +57,8 @@ public static class TimeSpanExtension
     [Pure]
     public static System.TimeSpan ToTzFromUtc(this System.TimeSpan timeSpan, System.DateTimeOffset utcNow, System.TimeZoneInfo timeZoneInfo)
     {
-        double offset = utcNow.ToTzOffsetHours(timeZoneInfo);
-
-        long newTicks = timeSpan.Ticks + System.TimeSpan.FromHours(offset)
-                                               .Ticks;
-
-        // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24)
-                                      .Ticks;
-        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
-
-        return new System.TimeSpan(newTicks);
+        System.TimeSpan offset = timeZoneInfo.GetUtcOffset(utcNow);
+        return AdjustClockTime(timeSpan, offset.Ticks);
     }
 
     /// <summary>
@@ -117,18 +96,8 @@ public static class TimeSpanExtension
     [Pure]
     public static System.TimeSpan ToUtcFromTz(this System.TimeSpan timeSpan, System.DateTime utcNow, System.TimeZoneInfo timeZoneInfo)
     {
-        int offset = utcNow.ToTzOffsetHours(timeZoneInfo);
-
-        long newTicks = timeSpan.Ticks - System.TimeSpan.FromHours(offset)
-                                               .Ticks;
-
-        // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24)
-                                      .Ticks;
-        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
-
-        var rtnTimeSpan = new System.TimeSpan(newTicks);
-        return rtnTimeSpan;
+        System.TimeSpan offset = timeZoneInfo.GetUtcOffset(utcNow);
+        return AdjustClockTime(timeSpan, -offset.Ticks);
     }
 
     /// <summary>
@@ -147,16 +116,23 @@ public static class TimeSpanExtension
     [Pure]
     public static System.TimeSpan ToTzFromUtc(this System.TimeSpan timeSpan, System.DateTime utcNow, System.TimeZoneInfo timeZoneInfo)
     {
-        int offset = utcNow.ToTzOffsetHours(timeZoneInfo);
+        System.TimeSpan offset = timeZoneInfo.GetUtcOffset(utcNow);
+        return AdjustClockTime(timeSpan, offset.Ticks);
+    }
 
-        long newTicks = timeSpan.Ticks + System.TimeSpan.FromHours(offset)
-                                               .Ticks;
-        // Ensure the TimeSpan stays within a 24-hour period
-        long totalTicksInADay = System.TimeSpan.FromHours(24)
-                                      .Ticks;
-        newTicks = (newTicks + totalTicksInADay) % totalTicksInADay;
+    private static System.TimeSpan AdjustClockTime(System.TimeSpan timeSpan, long offsetTicks)
+    {
+        const long ticksPerDay = System.TimeSpan.TicksPerDay;
 
-        return new System.TimeSpan(newTicks);
+        long normalizedTicks = timeSpan.Ticks % ticksPerDay;
+        if (normalizedTicks < 0)
+            normalizedTicks += ticksPerDay;
+
+        long adjustedTicks = (normalizedTicks + offsetTicks) % ticksPerDay;
+        if (adjustedTicks < 0)
+            adjustedTicks += ticksPerDay;
+
+        return new System.TimeSpan(adjustedTicks);
     }
 
 
