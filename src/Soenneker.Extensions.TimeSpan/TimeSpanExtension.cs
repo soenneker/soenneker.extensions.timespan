@@ -145,32 +145,41 @@ public static class TimeSpanExtension
     [Pure]
     public static string ToDisplayFormat(this System.TimeSpan timeSpan, bool compact = true)
     {
-        if (timeSpan.TotalMilliseconds < 1)
+        long ticks = timeSpan.Ticks;
+
+        if (ticks < System.TimeSpan.TicksPerMillisecond)
             return "0s";
 
-        if (timeSpan.TotalSeconds < 1)
-            return compact ? $"{timeSpan.TotalMilliseconds}ms" : $"{timeSpan.TotalMilliseconds} milliseconds";
+        if (ticks < System.TimeSpan.TicksPerSecond)
+        {
+            double milliseconds = timeSpan.TotalMilliseconds;
+            return compact ? $"{milliseconds}ms" : $"{milliseconds} milliseconds";
+        }
 
-        if (timeSpan.TotalMinutes < 1)
-            return compact ? $"{timeSpan.Seconds}s" : $"{timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
+        int seconds = timeSpan.Seconds;
+        if (ticks < System.TimeSpan.TicksPerMinute)
+            return compact ? $"{seconds}s" : $"{seconds} {(seconds == 1 ? "second" : "seconds")}";
 
-        if (timeSpan.TotalHours < 1)
+        int minutes = timeSpan.Minutes;
+        if (ticks < System.TimeSpan.TicksPerHour)
             return compact
-                ? $"{timeSpan.Minutes}m {timeSpan.Seconds}s"
-                : $"{timeSpan.Minutes} {(timeSpan.Minutes == 1 ? "minute" : "minutes")}, {timeSpan.Seconds} {(timeSpan.Seconds == 1 ? "second" : "seconds")}";
+                ? $"{minutes}m {seconds}s"
+                : $"{minutes} {(minutes == 1 ? "minute" : "minutes")}, {seconds} {(seconds == 1 ? "second" : "seconds")}";
 
-        if (timeSpan.TotalDays < 1)
+        int hours = timeSpan.Hours;
+        if (ticks < System.TimeSpan.TicksPerDay)
             return compact
-                ? $"{timeSpan.Hours}h {timeSpan.Minutes}m"
-                : $"{timeSpan.Hours} {(timeSpan.Hours == 1 ? "hour" : "hours")}, {timeSpan.Minutes} {(timeSpan.Minutes == 1 ? "minute" : "minutes")}";
+                ? $"{hours}h {minutes}m"
+                : $"{hours} {(hours == 1 ? "hour" : "hours")}, {minutes} {(minutes == 1 ? "minute" : "minutes")}";
 
-        if (timeSpan.TotalDays < 365)
+        int totalDays = timeSpan.Days;
+        if (totalDays < 365)
             return compact
-                ? $"{timeSpan.Days}d {timeSpan.Hours}h"
-                : $"{timeSpan.Days} {(timeSpan.Days == 1 ? "day" : "days")}, {timeSpan.Hours} {(timeSpan.Hours == 1 ? "hour" : "hours")}";
+                ? $"{totalDays}d {hours}h"
+                : $"{totalDays} {(totalDays == 1 ? "day" : "days")}, {hours} {(hours == 1 ? "hour" : "hours")}";
 
-        int years = timeSpan.Days / 365;
-        int days = timeSpan.Days % 365;
+        int years = totalDays / 365;
+        int days = totalDays % 365;
 
         return compact ? $"{years}y {days}d" : $"{years} {(years == 1 ? "year" : "years")}, {days} {(days == 1 ? "day" : "days")}";
     }
