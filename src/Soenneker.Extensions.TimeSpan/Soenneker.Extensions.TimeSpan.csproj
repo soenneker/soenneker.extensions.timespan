@@ -45,6 +45,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Extensions.DateTimeOffsets" Version="4.0.166" />
+        <PackageReference Include="Soenneker.Extensions.DateTimeOffsets" Version="4.0.167" />
     </ItemGroup>
 </Project>
